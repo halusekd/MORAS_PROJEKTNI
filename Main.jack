@@ -11,13 +11,13 @@ class Main {
         do Output.println();
         do Output.println();
 
-        let input = Keyboard.readLine("Expression: ");
+        let input = Keyboard.readLine("Izraz: ");
 
         let tok = Tokenizer.new(input);
         do input.dispose();
 
         if (tok.hasError()) {
-            do Output.printString("Error: invalid token in input.");
+            do Output.printString("Greska: nepodrzani token.");
             do Output.println();
             do tok.dispose();
             return;
@@ -27,7 +27,7 @@ class Main {
         let result = p.parse();
 
         if (p.hasError()) {
-            do Output.printString("Error: parse error.");
+            do Output.printString("Greska: sintaksa/parsiranje.");
             do Output.println();
             do result.dispose();
             do p.dispose();
