@@ -1,0 +1,414 @@
+class BigInt {
+    field String digits;
+    field boolean neg;
+
+    constructor BigInt new(int n) {
+        let digits = String.new(120);
+        let neg = false;
+        do setInt(n);
+        return this;
+    }
+
+    constructor BigInt newCopy(BigInt other) {
+        var int i, len;
+        let digits = String.new(120);
+        let neg = other.isNeg();
+        let len = other.numDigits();
+        let i = 0;
+        while (i < len) {
+            do digits.appendChar(other.charAt(i));
+            let i = i + 1;
+        }
+        return this;
+    }
+
+    method void dispose() {
+        do digits.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method int numDigits() { return digits.length(); }
+    method char charAt(int i) { return digits.charAt(i); }
+    method int digitAt(int i) { return digits.charAt(i) - 48; }
+    method boolean isNeg() { return neg; }
+    method String rawDigits() { return digits; }
+
+    method void clearDigits() {
+        while (digits.length() > 0) { do digits.eraseLastChar(); }
+        return;
+    }
+
+    method void setZero() {
+        do clearDigits();
+        do digits.appendChar(48);
+        let neg = false;
+        return;
+    }
+
+    method void setInt(int n) {
+        var int a, d, i, k;
+        var Array tmp;
+        do clearDigits();
+        if (n = 0) { do digits.appendChar(48); let neg = false; return; }
+        if (n < 0) { let neg = true; let a = -n; }
+        else { let neg = false; let a = n; }
+        let tmp = Array.new(8);
+        let i = 0;
+        while (a > 0) {
+            let d = a - ((a / 10) * 10);
+            let tmp[i] = d;
+            let i = i + 1;
+            let a = a / 10;
+        }
+        let k = i - 1;
+        while (~(k < 0)) {
+            do digits.appendChar(tmp[k] + 48);
+            let k = k - 1;
+        }
+        do tmp.dispose();
+        return;
+    }
+
+    method boolean isZero() {
+        var int i, len;
+        let len = digits.length();
+        let i = 0;
+        while (i < len) {
+            if (~(digits.charAt(i) = 48)) { return false; }
+            let i = i + 1;
+        }
+        return true;
+    }
+
+    method boolean isUnit() {
+        if (~(digits.length() = 1)) { return false; }
+        if (~(digits.charAt(0) = 49)) { return false; }
+        if (neg) { return false; }
+        return true;
+    }
+
+    method void normalize() {
+        var int len, nz, i;
+        let len = digits.length();
+        let nz = 0;
+        while ((nz < (len - 1)) & (digits.charAt(nz) = 48)) {
+            let nz = nz + 1;
+        }
+        if (nz > 0) {
+            let i = 0;
+            while ((i + nz) < len) {
+                do digits.setCharAt(i, digits.charAt(i + nz));
+                let i = i + 1;
+            }
+            while (digits.length() > (len - nz)) {
+                do digits.eraseLastChar();
+            }
+        }
+        if (isZero()) { let neg = false; }
+        return;
+    }
+
+    method void setNeg(boolean n) {
+        let neg = n;
+        if (isZero()) { let neg = false; }
+        return;
+    }
+
+    method void negate() {
+        if (~isZero()) { let neg = ~neg; }
+        return;
+    }
+
+    method int compareAbs(BigInt other) {
+        var int la, lb, i;
+        var char ca, cb;
+        let la = digits.length();
+        let lb = other.numDigits();
+        if (la < lb) { return -1; }
+        if (la > lb) { return 1; }
+        let i = 0;
+        while (i < la) {
+            let ca = digits.charAt(i);
+            let cb = other.charAt(i);
+            if (ca < cb) { return -1; }
+            if (ca > cb) { return 1; }
+            let i = i + 1;
+        }
+        return 0;
+    }
+
+    method int compare(BigInt other) {
+        var int c;
+        if (isZero() & other.isZero()) { return 0; }
+        if (neg & (~other.isNeg())) { return -1; }
+        if ((~neg) & other.isNeg()) { return 1; }
+        let c = compareAbs(other);
+        if (neg) { return -c; }
+        return c;
+    }
+
+    method void multiplyBy10() {
+        if (isZero()) { return; }
+        do digits.appendChar(48);
+        return;
+    }
+    method void addSmallToAbs(int d) {
+        var int i, sum, carry;
+        let carry = d;
+        let i = digits.length() - 1;
+        while ((~(i < 0)) & (carry > 0)) {
+            let sum = (digits.charAt(i) - 48) + carry;
+            let carry = sum / 10;
+            let sum = sum - (carry * 10);
+            do digits.setCharAt(i, sum + 48);
+            let i = i - 1;
+        }
+        while (carry > 0) {
+            let sum = carry - ((carry / 10) * 10);
+            do prependDigit(sum);
+            let carry = carry / 10;
+        }
+        do normalize();
+        return;
+    }
+    method void prependDigit(int d) {
+        var int i, len;
+        let len = digits.length();
+        do digits.appendChar(48);
+        let i = len;
+        while (i > 0) {
+            do digits.setCharAt(i, digits.charAt(i - 1));
+            let i = i - 1;
+        }
+        do digits.setCharAt(0, d + 48);
+        return;
+    }
+    method void replaceWith(BigInt other) {
+        var int i, len;
+        do clearDigits();
+        let len = other.numDigits();
+        let i = 0;
+        while (i < len) {
+            do digits.appendChar(other.charAt(i));
+            let i = i + 1;
+        }
+        let neg = other.isNeg();
+        return;
+    }
+    function BigInt makeAddAbs(BigInt a, BigInt b, boolean resultNeg) {
+        var BigInt result;
+        var int la, lb, i, da, db, sum, carry;
+        var Array tmp;
+        var int tmpLen;
+        var String rd;
+        let la = a.numDigits();
+        let lb = b.numDigits();
+        let tmp = Array.new(la + lb + 2);
+        let tmpLen = 0;
+        let carry = 0;
+        let i = 0;
+        while ((i < la) | (i < lb) | (carry > 0)) {
+            if (i < la) { let da = a.digitAt(la - 1 - i); } else { let da = 0; }
+            if (i < lb) { let db = b.digitAt(lb - 1 - i); } else { let db = 0; }
+            let sum = da + db + carry;
+            let carry = sum / 10;
+            let sum = sum - (carry * 10);
+            let tmp[tmpLen] = sum;
+            let tmpLen = tmpLen + 1;
+            let i = i + 1;
+        }
+        let result = BigInt.new(0);
+        do result.clearDigits();
+        let rd = result.rawDigits();
+        let i = tmpLen - 1;
+        while (~(i < 0)) {
+            do rd.appendChar(tmp[i] + 48);
+            let i = i - 1;
+        }
+        if (result.numDigits() = 0) { do rd.appendChar(48); }
+        do result.setNeg(resultNeg);
+        do result.normalize();
+        do tmp.dispose();
+        return result;
+    }
+    function BigInt makeSubAbs(BigInt a, BigInt b, boolean resultNeg) {
+        var BigInt result;
+        var int la, lb, i, da, db, diff, borrow;
+        var Array tmp;
+        var int tmpLen;
+        var String rd;
+        let la = a.numDigits();
+        let lb = b.numDigits();
+        let tmp = Array.new(la + 2);
+        let tmpLen = 0;
+        let borrow = 0;
+        let i = 0;
+        while (i < la) {
+            let da = a.digitAt(la - 1 - i);
+            if (i < lb) { let db = b.digitAt(lb - 1 - i); } else { let db = 0; }
+            let diff = da - db - borrow;
+            if (diff < 0) { let diff = diff + 10; let borrow = 1; }
+            else { let borrow = 0; }
+            let tmp[tmpLen] = diff;
+            let tmpLen = tmpLen + 1;
+            let i = i + 1;
+        }
+        let result = BigInt.new(0);
+        do result.clearDigits();
+        let rd = result.rawDigits();
+        let i = tmpLen - 1;
+        while (~(i < 0)) {
+            do rd.appendChar(tmp[i] + 48);
+            let i = i - 1;
+        }
+        if (result.numDigits() = 0) { do rd.appendChar(48); }
+        do result.setNeg(resultNeg);
+        do result.normalize();
+        do tmp.dispose();
+        return result;
+    }
+
+    method BigInt add(BigInt other) {
+        var int cmp;
+        if (neg = other.isNeg()) {
+            return BigInt.makeAddAbs(this, other, neg);
+        }
+        let cmp = compareAbs(other);
+        if (cmp = 0) { return BigInt.new(0); }
+        if (cmp > 0) { return BigInt.makeSubAbs(this, other, neg); }
+        return BigInt.makeSubAbs(other, this, other.isNeg());
+    }
+
+    method BigInt sub(BigInt other) {
+        var int cmp;
+        if (~(neg = other.isNeg())) {
+            return BigInt.makeAddAbs(this, other, neg);
+        }
+        let cmp = compareAbs(other);
+        if (cmp = 0) { return BigInt.new(0); }
+        if (cmp > 0) { return BigInt.makeSubAbs(this, other, neg); }
+        return BigInt.makeSubAbs(other, this, ~neg);
+    }
+
+    method BigInt mul(BigInt other) {
+        var BigInt result;
+        var int la, lb, i, j, da, db, sum, carry, k;
+        var Array tmp;
+        var String rd;
+        let la = digits.length();
+        let lb = other.numDigits();
+        let tmp = Array.new(la + lb + 2);
+        let i = 0;
+        while (i < (la + lb + 2)) { let tmp[i] = 0; let i = i + 1; }
+        let i = 0;
+        while (i < la) {
+            let da = digits.charAt(la - 1 - i) - 48;
+            let carry = 0;
+            let j = 0;
+            while (j < lb) {
+                let db = other.charAt(lb - 1 - j) - 48;
+                let k = i + j;
+                let sum = tmp[k] + (da * db) + carry;
+                let carry = sum / 10;
+                let tmp[k] = sum - (carry * 10);
+                let j = j + 1;
+            }
+            let k = i + lb;
+            while (carry > 0) {
+                let sum = tmp[k] + carry;
+                let carry = sum / 10;
+                let tmp[k] = sum - (carry * 10);
+                let k = k + 1;
+            }
+            let i = i + 1;
+        }
+        let result = BigInt.new(0);
+        do result.clearDigits();
+        let rd = result.rawDigits();
+        let i = la + lb + 1;
+        while ((i > 0) & (tmp[i - 1] = 0)) { let i = i - 1; }
+        if (i = 0) {
+            do rd.appendChar(48);
+        } else {
+            let k = i - 1;
+            while (~(k < 0)) {
+                do rd.appendChar(tmp[k] + 48);
+                let k = k - 1;
+            }
+        }
+        do result.setNeg(~(neg = other.isNeg()));
+        do result.normalize();
+        do tmp.dispose();
+        return result;
+    }
+    function void divModAbs(BigInt a, BigInt b, BigInt qOut, BigInt rOut) {
+        var int i, la, qDigit, cmp;
+        var BigInt sub;
+        var String qd;
+
+        if (b.isZero()) {
+            do qOut.setZero();
+            do rOut.setZero();
+            return;
+        }
+
+        do qOut.clearDigits();
+        do rOut.setZero();
+        let qd = qOut.rawDigits();
+        let la = a.numDigits();
+
+        let i = 0;
+        while (i < la) {
+            do rOut.multiplyBy10();
+            do rOut.addSmallToAbs(a.digitAt(i));
+            let qDigit = 0;
+            let cmp = rOut.compareAbs(b);
+            while (~(cmp < 0)) {
+                let sub = BigInt.makeSubAbs(rOut, b, false);
+                do rOut.replaceWith(sub);
+                do sub.dispose();
+                let qDigit = qDigit + 1;
+                let cmp = rOut.compareAbs(b);
+            }
+            do qd.appendChar(qDigit + 48);
+            let i = i + 1;
+        }
+
+        do qOut.normalize();
+        do rOut.normalize();
+        return;
+    }
+
+    method BigInt div(BigInt other) {
+        var BigInt q, r;
+        let q = BigInt.new(0);
+        let r = BigInt.new(0);
+        do BigInt.divModAbs(this, other, q, r);
+        do q.setNeg(~(neg = other.isNeg()));
+        do r.dispose();
+        return q;
+    }
+
+    method BigInt mod(BigInt other) {
+        var BigInt q, r;
+        let q = BigInt.new(0);
+        let r = BigInt.new(0);
+        do BigInt.divModAbs(this, other, q, r);
+        do r.setNeg(neg);
+        do q.dispose();
+        return r;
+    }
+
+    method void print() {
+        var int i, len;
+        if (neg & (~isZero())) { do Output.printChar(45); }
+        let len = digits.length();
+        let i = 0;
+        while (i < len) {
+            do Output.printChar(digits.charAt(i));
+            let i = i + 1;
+        }
+        return;
+    }
+}

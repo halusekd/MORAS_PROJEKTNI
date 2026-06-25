@@ -1,0 +1,219 @@
+class Fraction {
+    field BigInt num;
+    field BigInt den;
+
+    constructor Fraction new(BigInt n, BigInt d) {
+        let num = n;
+        let den = d;
+        if (den.isNeg()) {
+            do den.negate();
+            do num.negate();
+        }
+        return this;
+    }
+
+    constructor Fraction newFromInts(int n, int d) {
+        let num = BigInt.new(n);
+        let den = BigInt.new(d);
+        if (den.isNeg()) {
+            do den.negate();
+            do num.negate();
+        }
+        return this;
+    }
+
+    constructor Fraction newCopy(Fraction other) {
+        let num = BigInt.newCopy(other.getNum());
+        let den = BigInt.newCopy(other.getDen());
+        return this;
+    }
+
+    method void dispose() {
+        do num.dispose();
+        do den.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method BigInt getNum() { return num; }
+    method BigInt getDen() { return den; }
+
+    method boolean isZero() { return num.isZero(); }
+    method boolean isNeg() { return num.isNeg(); }
+    method void negate() {
+        do num.negate();
+        return;
+    }
+
+    function BigInt gcdAbs(BigInt a, BigInt b) {
+        var BigInt x, y, t;
+        let x = BigInt.newCopy(a);
+        let y = BigInt.newCopy(b);
+        do x.setNeg(false);
+        do y.setNeg(false);
+        while (~(y.isZero())) {
+            let t = x.mod(y);
+            do x.replaceWith(y);
+            do y.replaceWith(t);
+            do t.dispose();
+        }
+        do y.dispose();
+        return x;
+    }
+
+    method void simplify() {
+        var BigInt g, newN, newD;
+        if (num.isZero()) {
+            do den.setInt(1);
+            return;
+        }
+        let g = Fraction.gcdAbs(num, den);
+        if (~(g.isUnit())) {
+            let newN = num.div(g);
+            let newD = den.div(g);
+            do num.replaceWith(newN);
+            do den.replaceWith(newD);
+            do newN.dispose();
+            do newD.dispose();
+        }
+        do g.dispose();
+        return;
+    }
+    method Fraction add(Fraction other) {
+        var BigInt ad, bc, sumN, bd;
+        var Fraction result;
+        let ad = num.mul(other.getDen());
+        let bc = den.mul(other.getNum());
+        let sumN = ad.add(bc);
+        let bd = den.mul(other.getDen());
+        do ad.dispose();
+        do bc.dispose();
+        let result = Fraction.new(sumN, bd);
+        do result.simplify();
+        return result;
+    }
+
+    method Fraction sub(Fraction other) {
+        var BigInt ad, bc, diffN, bd;
+        var Fraction result;
+        let ad = num.mul(other.getDen());
+        let bc = den.mul(other.getNum());
+        let diffN = ad.sub(bc);
+        let bd = den.mul(other.getDen());
+        do ad.dispose();
+        do bc.dispose();
+        let result = Fraction.new(diffN, bd);
+        do result.simplify();
+        return result;
+    }
+
+    method Fraction mul(Fraction other) {
+        var BigInt n, d;
+        var Fraction result;
+        let n = num.mul(other.getNum());
+        let d = den.mul(other.getDen());
+        let result = Fraction.new(n, d);
+        do result.simplify();
+        return result;
+    }
+    method Fraction div(Fraction other) {
+        var BigInt n, d;
+        var Fraction result;
+        let n = num.mul(other.getDen());
+        let d = den.mul(other.getNum());
+        let result = Fraction.new(n, d);
+        do result.simplify();
+        return result;
+    }
+
+    method int compare(Fraction other) {
+        var BigInt ad, bc;
+        var int c;
+        let ad = num.mul(other.getDen());
+        let bc = den.mul(other.getNum());
+        let c = ad.compare(bc);
+        do ad.dispose();
+        do bc.dispose();
+        return c;
+    }
+
+
+    method boolean isInteger() {
+        do simplify();
+        return den.isUnit();
+    }
+
+    method void roundToPrecision(int precision) {
+        var int dDigits, k, i;
+        var BigInt scale, newN, newD;
+        let dDigits = den.numDigits();
+        if (dDigits < (precision + 1)) {
+            return;
+        }
+        let k = dDigits - precision;
+        let scale = BigInt.new(1);
+        let i = 0;
+        while (i < k) {
+            do scale.multiplyBy10();
+            let i = i + 1;
+        }
+        let newN = num.div(scale);
+        let newD = den.div(scale);
+        if (newD.isZero()) {
+            do newD.setInt(1);
+        }
+        do num.replaceWith(newN);
+        do den.replaceWith(newD);
+        do newN.dispose();
+        do newD.dispose();
+        do scale.dispose();
+        do simplify();
+        return;
+    }
+
+    method void toDecimal(int precision) {
+        var BigInt q, r, ten, prod, sub, absN;
+        var int i;
+        if (num.isZero()) {
+            do Output.printChar(48); 
+            return;
+        }
+
+        if (num.isNeg()) {
+            do Output.printChar(45); 
+        }
+
+        let absN = BigInt.newCopy(num);
+        do absN.setNeg(false);
+
+        let q = absN.div(den);
+        let r = absN.mod(den);
+        do absN.dispose();
+        do q.print();
+        do q.dispose();
+
+        if (~(r.isZero())) {
+            do Output.printChar(46); 
+            let ten = BigInt.new(10);
+            let i = 0;
+            while ((i < precision) & (~(r.isZero()))) {
+                let prod = r.mul(ten);
+                do r.replaceWith(prod);
+                do prod.dispose();
+                let q = r.div(den);
+                let prod = q.mul(den);
+                let sub = r.sub(prod);
+                do r.replaceWith(sub);
+                do sub.dispose();
+                do prod.dispose();
+                do q.print();
+                do q.dispose();
+                let i = i + 1;
+            }
+            do ten.dispose();
+        }
+
+        do r.dispose();
+        return;
+    }
+}

@@ -1,0 +1,558 @@
+function Fraction.new 0
+push constant 2
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+pop this 0
+push argument 1
+pop this 1
+push this 1
+call BigInt.isNeg 1
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 1
+call BigInt.negate 1
+pop temp 0
+push this 0
+call BigInt.negate 1
+pop temp 0
+label IF_FALSE0
+push pointer 0
+return
+function Fraction.newFromInts 0
+push constant 2
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+call BigInt.new 1
+pop this 0
+push argument 1
+call BigInt.new 1
+pop this 1
+push this 1
+call BigInt.isNeg 1
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 1
+call BigInt.negate 1
+pop temp 0
+push this 0
+call BigInt.negate 1
+pop temp 0
+label IF_FALSE0
+push pointer 0
+return
+function Fraction.newCopy 0
+push constant 2
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+call Fraction.getNum 1
+call BigInt.newCopy 1
+pop this 0
+push argument 0
+call Fraction.getDen 1
+call BigInt.newCopy 1
+pop this 1
+push pointer 0
+return
+function Fraction.dispose 0
+push argument 0
+pop pointer 0
+push this 0
+call BigInt.dispose 1
+pop temp 0
+push this 1
+call BigInt.dispose 1
+pop temp 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
+function Fraction.getNum 0
+push argument 0
+pop pointer 0
+push this 0
+return
+function Fraction.getDen 0
+push argument 0
+pop pointer 0
+push this 1
+return
+function Fraction.isZero 0
+push argument 0
+pop pointer 0
+push this 0
+call BigInt.isZero 1
+return
+function Fraction.isNeg 0
+push argument 0
+pop pointer 0
+push this 0
+call BigInt.isNeg 1
+return
+function Fraction.negate 0
+push argument 0
+pop pointer 0
+push this 0
+call BigInt.negate 1
+pop temp 0
+push constant 0
+return
+function Fraction.gcdAbs 3
+push argument 0
+call BigInt.newCopy 1
+pop local 0
+push argument 1
+call BigInt.newCopy 1
+pop local 1
+push local 0
+push constant 0
+call BigInt.setNeg 2
+pop temp 0
+push local 1
+push constant 0
+call BigInt.setNeg 2
+pop temp 0
+label WHILE_EXP0
+push local 1
+call BigInt.isZero 1
+not
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+call BigInt.mod 2
+pop local 2
+push local 0
+push local 1
+call BigInt.replaceWith 2
+pop temp 0
+push local 1
+push local 2
+call BigInt.replaceWith 2
+pop temp 0
+push local 2
+call BigInt.dispose 1
+pop temp 0
+goto WHILE_EXP0
+label WHILE_END0
+push local 1
+call BigInt.dispose 1
+pop temp 0
+push local 0
+return
+function Fraction.simplify 3
+push argument 0
+pop pointer 0
+push this 0
+call BigInt.isZero 1
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 1
+push constant 1
+call BigInt.setInt 2
+pop temp 0
+push constant 0
+return
+label IF_FALSE0
+push this 0
+push this 1
+call Fraction.gcdAbs 2
+pop local 0
+push local 0
+call BigInt.isUnit 1
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 0
+push local 0
+call BigInt.div 2
+pop local 1
+push this 1
+push local 0
+call BigInt.div 2
+pop local 2
+push this 0
+push local 1
+call BigInt.replaceWith 2
+pop temp 0
+push this 1
+push local 2
+call BigInt.replaceWith 2
+pop temp 0
+push local 1
+call BigInt.dispose 1
+pop temp 0
+push local 2
+call BigInt.dispose 1
+pop temp 0
+label IF_FALSE1
+push local 0
+call BigInt.dispose 1
+pop temp 0
+push constant 0
+return
+function Fraction.add 5
+push argument 0
+pop pointer 0
+push this 0
+push argument 1
+call Fraction.getDen 1
+call BigInt.mul 2
+pop local 0
+push this 1
+push argument 1
+call Fraction.getNum 1
+call BigInt.mul 2
+pop local 1
+push local 0
+push local 1
+call BigInt.add 2
+pop local 2
+push this 1
+push argument 1
+call Fraction.getDen 1
+call BigInt.mul 2
+pop local 3
+push local 0
+call BigInt.dispose 1
+pop temp 0
+push local 1
+call BigInt.dispose 1
+pop temp 0
+push local 2
+push local 3
+call Fraction.new 2
+pop local 4
+push local 4
+call Fraction.simplify 1
+pop temp 0
+push local 4
+return
+function Fraction.sub 5
+push argument 0
+pop pointer 0
+push this 0
+push argument 1
+call Fraction.getDen 1
+call BigInt.mul 2
+pop local 0
+push this 1
+push argument 1
+call Fraction.getNum 1
+call BigInt.mul 2
+pop local 1
+push local 0
+push local 1
+call BigInt.sub 2
+pop local 2
+push this 1
+push argument 1
+call Fraction.getDen 1
+call BigInt.mul 2
+pop local 3
+push local 0
+call BigInt.dispose 1
+pop temp 0
+push local 1
+call BigInt.dispose 1
+pop temp 0
+push local 2
+push local 3
+call Fraction.new 2
+pop local 4
+push local 4
+call Fraction.simplify 1
+pop temp 0
+push local 4
+return
+function Fraction.mul 3
+push argument 0
+pop pointer 0
+push this 0
+push argument 1
+call Fraction.getNum 1
+call BigInt.mul 2
+pop local 0
+push this 1
+push argument 1
+call Fraction.getDen 1
+call BigInt.mul 2
+pop local 1
+push local 0
+push local 1
+call Fraction.new 2
+pop local 2
+push local 2
+call Fraction.simplify 1
+pop temp 0
+push local 2
+return
+function Fraction.div 3
+push argument 0
+pop pointer 0
+push this 0
+push argument 1
+call Fraction.getDen 1
+call BigInt.mul 2
+pop local 0
+push this 1
+push argument 1
+call Fraction.getNum 1
+call BigInt.mul 2
+pop local 1
+push local 0
+push local 1
+call Fraction.new 2
+pop local 2
+push local 2
+call Fraction.simplify 1
+pop temp 0
+push local 2
+return
+function Fraction.compare 3
+push argument 0
+pop pointer 0
+push this 0
+push argument 1
+call Fraction.getDen 1
+call BigInt.mul 2
+pop local 0
+push this 1
+push argument 1
+call Fraction.getNum 1
+call BigInt.mul 2
+pop local 1
+push local 0
+push local 1
+call BigInt.compare 2
+pop local 2
+push local 0
+call BigInt.dispose 1
+pop temp 0
+push local 1
+call BigInt.dispose 1
+pop temp 0
+push local 2
+return
+function Fraction.isInteger 0
+push argument 0
+pop pointer 0
+push pointer 0
+call Fraction.simplify 1
+pop temp 0
+push this 1
+call BigInt.isUnit 1
+return
+function Fraction.roundToPrecision 6
+push argument 0
+pop pointer 0
+push this 1
+call BigInt.numDigits 1
+pop local 0
+push local 0
+push argument 1
+push constant 1
+add
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push local 0
+push argument 1
+sub
+pop local 1
+push constant 1
+call BigInt.new 1
+pop local 3
+push constant 0
+pop local 2
+label WHILE_EXP0
+push local 2
+push local 1
+lt
+not
+if-goto WHILE_END0
+push local 3
+call BigInt.multiplyBy10 1
+pop temp 0
+push local 2
+push constant 1
+add
+pop local 2
+goto WHILE_EXP0
+label WHILE_END0
+push this 0
+push local 3
+call BigInt.div 2
+pop local 4
+push this 1
+push local 3
+call BigInt.div 2
+pop local 5
+push local 5
+call BigInt.isZero 1
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 5
+push constant 1
+call BigInt.setInt 2
+pop temp 0
+label IF_FALSE1
+push this 0
+push local 4
+call BigInt.replaceWith 2
+pop temp 0
+push this 1
+push local 5
+call BigInt.replaceWith 2
+pop temp 0
+push local 4
+call BigInt.dispose 1
+pop temp 0
+push local 5
+call BigInt.dispose 1
+pop temp 0
+push local 3
+call BigInt.dispose 1
+pop temp 0
+push pointer 0
+call Fraction.simplify 1
+pop temp 0
+push constant 0
+return
+function Fraction.toDecimal 7
+push argument 0
+pop pointer 0
+push this 0
+call BigInt.isZero 1
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 48
+call Output.printChar 1
+pop temp 0
+push constant 0
+return
+label IF_FALSE0
+push this 0
+call BigInt.isNeg 1
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 45
+call Output.printChar 1
+pop temp 0
+label IF_FALSE1
+push this 0
+call BigInt.newCopy 1
+pop local 5
+push local 5
+push constant 0
+call BigInt.setNeg 2
+pop temp 0
+push local 5
+push this 1
+call BigInt.div 2
+pop local 0
+push local 5
+push this 1
+call BigInt.mod 2
+pop local 1
+push local 5
+call BigInt.dispose 1
+pop temp 0
+push local 0
+call BigInt.print 1
+pop temp 0
+push local 0
+call BigInt.dispose 1
+pop temp 0
+push local 1
+call BigInt.isZero 1
+not
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 46
+call Output.printChar 1
+pop temp 0
+push constant 10
+call BigInt.new 1
+pop local 2
+push constant 0
+pop local 6
+label WHILE_EXP0
+push local 6
+push argument 1
+lt
+push local 1
+call BigInt.isZero 1
+not
+and
+not
+if-goto WHILE_END0
+push local 1
+push local 2
+call BigInt.mul 2
+pop local 3
+push local 1
+push local 3
+call BigInt.replaceWith 2
+pop temp 0
+push local 3
+call BigInt.dispose 1
+pop temp 0
+push local 1
+push this 1
+call BigInt.div 2
+pop local 0
+push local 0
+push this 1
+call BigInt.mul 2
+pop local 3
+push local 1
+push local 3
+call BigInt.sub 2
+pop local 4
+push local 1
+push local 4
+call BigInt.replaceWith 2
+pop temp 0
+push local 4
+call BigInt.dispose 1
+pop temp 0
+push local 3
+call BigInt.dispose 1
+pop temp 0
+push local 0
+call BigInt.print 1
+pop temp 0
+push local 0
+call BigInt.dispose 1
+pop temp 0
+push local 6
+push constant 1
+add
+pop local 6
+goto WHILE_EXP0
+label WHILE_END0
+push local 2
+call BigInt.dispose 1
+pop temp 0
+label IF_FALSE2
+push local 1
+call BigInt.dispose 1
+pop temp 0
+push constant 0
+return

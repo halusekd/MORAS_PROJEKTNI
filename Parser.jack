@@ -1,0 +1,185 @@
+class Parser {
+    field Tokenizer tok;
+    field int pos;
+    field boolean errorFlag;
+
+    constructor Parser new(Tokenizer t) {
+        let tok = t;
+        let pos = 0;
+        let errorFlag = false;
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method boolean hasError() { return errorFlag; }
+    method int curType() { return tok.typeAt(pos); }
+    method int curValue() { return tok.valueAt(pos); }
+    method void advance() { let pos = pos + 1; return; }
+
+    method Fraction parse() {
+        var Fraction r;
+        let r = parseExpr();
+        if (~(curType() = 10)) {
+            let errorFlag = true;
+        }
+        return r;
+    }
+
+    method Fraction parseExpr() {
+        var Fraction left, right, newLeft;
+        var int t;
+        var boolean loop;
+        let left = parseTerm();
+        let loop = true;
+        while (loop) {
+            let t = curType();
+            if (t = 3) {
+                do advance();
+                let right = parseTerm();
+                let newLeft = left.add(right);
+                do left.dispose();
+                do right.dispose();
+                let left = newLeft;
+                do left.roundToPrecision(14);
+            } else { if (t = 4) {
+                do advance();
+                let right = parseTerm();
+                let newLeft = left.sub(right);
+                do left.dispose();
+                do right.dispose();
+                let left = newLeft;
+                do left.roundToPrecision(14);
+            } else {
+                let loop = false;
+            }}
+        }
+        return left;
+    }
+
+    method Fraction parseTerm() {
+        var Fraction left, right, newLeft;
+        var int t;
+        var boolean loop;
+        let left = parseUnary();
+        let loop = true;
+        while (loop) {
+            let t = curType();
+            if (t = 5) {       
+                do advance();
+                let right = parseUnary();
+                let newLeft = left.mul(right);
+                do left.dispose();
+                do right.dispose();
+                let left = newLeft;
+                do left.roundToPrecision(14);
+            } else { if (t = 6) { 
+                do advance();
+                let right = parseUnary();
+                let newLeft = left.div(right);
+                do left.dispose();
+                do right.dispose();
+                let left = newLeft;
+                do left.roundToPrecision(14);
+            } else { if ((t = 1) | (t = 2) | (t = 8)) {
+                let right = parseUnary();
+                let newLeft = left.mul(right);
+                do left.dispose();
+                do right.dispose();
+                let left = newLeft;
+                do left.roundToPrecision(14);
+            } else {
+                let loop = false;
+            }}}
+        }
+        return left;
+    }
+
+    method Fraction parseUnary() {
+        var Fraction inner;
+        if (curType() = 4) { 
+            do advance();
+            let inner = parseUnary();
+            do inner.negate();
+            return inner;
+        }
+        if (curType() = 3) {  
+            do advance();
+            return parseUnary();
+        }
+        return parsePower();
+    }
+
+    method Fraction parsePower() {
+        var Fraction base, exp, result;
+        let base = parsePrimary();
+        if (curType() = 7) {
+            do advance();
+            let exp = parseUnary();
+            let result = MathFuncs.powFrac(base, exp);
+            do base.dispose();
+            do exp.dispose();
+            do result.roundToPrecision(14);
+            return result;
+        }
+        return base;
+    }
+
+    method Fraction parsePrimary() {
+        var Fraction r, arg, numFrac;
+        var int t, v;
+        let t = curType();
+        if (t = 1) {
+            let numFrac = tok.valueAt(pos);
+            let r = Fraction.newCopy(numFrac);
+            do advance();
+            return r;
+        }
+        if (t = 8) {
+            do advance();
+            let r = parseExpr();
+            if (curType() = 9) {
+                do advance();
+            } else {
+                let errorFlag = true;
+            }
+            return r;
+        }
+        if (t = 2) {
+            let v = curValue();
+            do advance();
+            if (v = 5) { return MathFuncs.pi(); }
+            if (v = 6) { return MathFuncs.e(); }
+            if (curType() = 8) {
+                do advance();
+                let arg = parseExpr();
+                if (curType() = 9) {
+                    do advance();
+                } else {
+                    let errorFlag = true;
+                }
+                if (v = 1) {
+                    let r = MathFuncs.sin(arg);
+                } else { if (v = 2) {
+                    let r = MathFuncs.cos(arg);
+                } else { if (v = 3) {
+                    let r = MathFuncs.sqrt(arg);
+                } else { if (v = 4) {
+                    let r = MathFuncs.abs(arg);
+                } else {
+                    let r = Fraction.newCopy(arg);
+                    let errorFlag = true;
+                }}}}
+                do arg.dispose();
+                return r;
+            }
+            let errorFlag = true;
+            return Fraction.newFromInts(0, 1);
+        }
+        let errorFlag = true;
+        return Fraction.newFromInts(0, 1);
+    }
+}

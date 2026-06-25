@@ -1,0 +1,47 @@
+class Main {
+    function void main() {
+        var String input;
+        var Tokenizer tok;
+        var Parser p;
+        var Fraction result;
+
+        do Output.printString("Evaluator matematickih izraza");
+        do Output.println();
+        do Output.printString("Podrzano: + - * / ^ ( ) sin cos sqrt abs pi e");
+        do Output.println();
+        do Output.println();
+
+        let input = Keyboard.readLine("Expression: ");
+
+        let tok = Tokenizer.new(input);
+        do input.dispose();
+
+        if (tok.hasError()) {
+            do Output.printString("Error: invalid token in input.");
+            do Output.println();
+            do tok.dispose();
+            return;
+        }
+
+        let p = Parser.new(tok);
+        let result = p.parse();
+
+        if (p.hasError()) {
+            do Output.printString("Error: parse error.");
+            do Output.println();
+            do result.dispose();
+            do p.dispose();
+            do tok.dispose();
+            return;
+        }
+
+        do Output.printString("= ");
+        do result.toDecimal(10);
+        do Output.println();
+
+        do result.dispose();
+        do p.dispose();
+        do tok.dispose();
+        return;
+    }
+}

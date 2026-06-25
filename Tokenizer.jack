@@ -1,0 +1,173 @@
+class Tokenizer {
+    field Array types;
+    field Array values;
+    field int count;
+    field boolean errorFlag;
+
+    constructor Tokenizer new(String src) {
+        var int i, len, c, code;
+        var BigInt n, d;
+        var String identStr;
+        var Fraction f;
+        var boolean digitLoop, hadDot;
+
+        let types = Array.new(80);
+        let values = Array.new(80);
+        let count = 0;
+        let errorFlag = false;
+
+        let i = 0;
+        let len = src.length();
+        while ((i < len) & (count < 79)) {
+            let c = src.charAt(i);
+            if ((c = 32) | (c = 9)) {
+                let i = i + 1;
+            } else {
+                if (Tokenizer.isDigit(c)) {
+                    let n = BigInt.new(0);
+                    let d = BigInt.new(1);
+                    let digitLoop = true;
+                    while (digitLoop) {
+                        do n.multiplyBy10();
+                        do n.addSmallToAbs(c - 48);
+                        let i = i + 1;
+                        if (i < len) {
+                            let c = src.charAt(i);
+                            if (~Tokenizer.isDigit(c)) {
+                                let digitLoop = false;
+                            }
+                        } else {
+                            let digitLoop = false;
+                        }
+                    }
+                    let hadDot = false;
+                    if (i < len) {
+                        if (c = 46) { 
+                            let hadDot = true;
+                        }
+                    }
+                    if (hadDot) {
+                        let i = i + 1;
+                        let digitLoop = false;
+                        if (i < len) {
+                            let c = src.charAt(i);
+                            if (Tokenizer.isDigit(c)) {
+                                let digitLoop = true;
+                            }
+                        }
+                        while (digitLoop) {
+                            do n.multiplyBy10();
+                            do n.addSmallToAbs(c - 48);
+                            do d.multiplyBy10();
+                            let i = i + 1;
+                            if (i < len) {
+                                let c = src.charAt(i);
+                                if (~Tokenizer.isDigit(c)) {
+                                    let digitLoop = false;
+                                }
+                            } else {
+                                let digitLoop = false;
+                            }
+                        }
+                    }
+                    let f = Fraction.new(n, d);
+                    do f.simplify();
+                    let types[count] = 1;
+                    let values[count] = f;
+                    let count = count + 1;
+                } else {
+                    if (Tokenizer.isAlpha(c)) {
+                        let identStr = String.new(10);
+                        let digitLoop = true;
+                        while (digitLoop) {
+                            if ((~(c < 65)) & (~(c > 90))) {
+                                let c = c + 32;
+                            }
+                            do identStr.appendChar(c);
+                            let i = i + 1;
+                            if (i < len) {
+                                let c = src.charAt(i);
+                                if (~Tokenizer.isAlpha(c)) {
+                                    let digitLoop = false;
+                                }
+                            } else {
+                                let digitLoop = false;
+                            }
+                        }
+                        let code = MathFuncs.identCode(identStr);
+                        do identStr.dispose();
+                        if (code = 0) {
+                            let errorFlag = true;
+                        }
+                        let types[count] = 2;
+                        let values[count] = code;
+                        let count = count + 1;
+                    } else {
+                        if (c = 43) {
+                            let types[count] = 3; let values[count] = 0;
+                            let count = count + 1; let i = i + 1;
+                        } else { if (c = 45) {
+                            let types[count] = 4; let values[count] = 0;
+                            let count = count + 1; let i = i + 1;
+                        } else { if (c = 42) {
+                            let types[count] = 5; let values[count] = 0;
+                            let count = count + 1; let i = i + 1;
+                        } else { if (c = 47) {
+                            let types[count] = 6; let values[count] = 0;
+                            let count = count + 1; let i = i + 1;
+                        } else { if (c = 94) {
+                            let types[count] = 7; let values[count] = 0;
+                            let count = count + 1; let i = i + 1;
+                        } else { if (c = 40) {
+                            let types[count] = 8; let values[count] = 0;
+                            let count = count + 1; let i = i + 1;
+                        } else { if (c = 41) {
+                            let types[count] = 9; let values[count] = 0;
+                            let count = count + 1; let i = i + 1;
+                        } else {
+                            let errorFlag = true;
+                            let i = i + 1;
+                        }}}}}}}
+                    }
+                }
+            }
+        }
+        let types[count] = 10;
+        let values[count] = 0;
+        let count = count + 1;
+        return this;
+    }
+
+    function boolean isDigit(int c) {
+        if ((~(c < 48)) & (~(c > 57))) { return true; }
+        return false;
+    }
+
+    function boolean isAlpha(int c) {
+        if ((~(c < 97)) & (~(c > 122))) { return true; }
+        if ((~(c < 65)) & (~(c > 90))) { return true; }
+        return false;
+    }
+
+    method int getCount() { return count; }
+    method int typeAt(int i) { return types[i]; }
+    method int valueAt(int i) { return values[i]; }
+    method boolean hasError() { return errorFlag; }
+
+    method void dispose() {
+        var int i;
+        var Fraction f;
+        let i = 0;
+        while (i < count) {
+            if (types[i] = 1) {
+                let f = values[i];
+                do f.dispose();
+            }
+            let i = i + 1;
+        }
+        do types.dispose();
+        do values.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+}

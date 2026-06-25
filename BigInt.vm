@@ -1,0 +1,1576 @@
+function BigInt.new 0
+push constant 2
+call Memory.alloc 1
+pop pointer 0
+push constant 120
+call String.new 1
+pop this 0
+push constant 0
+pop this 1
+push pointer 0
+push argument 0
+call BigInt.setInt 2
+pop temp 0
+push pointer 0
+return
+function BigInt.newCopy 2
+push constant 2
+call Memory.alloc 1
+pop pointer 0
+push constant 120
+call String.new 1
+pop this 0
+push argument 0
+call BigInt.isNeg 1
+pop this 1
+push argument 0
+call BigInt.numDigits 1
+pop local 1
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push local 1
+lt
+not
+if-goto WHILE_END0
+push this 0
+push argument 0
+push local 0
+call BigInt.charAt 2
+call String.appendChar 2
+pop temp 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push pointer 0
+return
+function BigInt.dispose 0
+push argument 0
+pop pointer 0
+push this 0
+call String.dispose 1
+pop temp 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
+function BigInt.numDigits 0
+push argument 0
+pop pointer 0
+push this 0
+call String.length 1
+return
+function BigInt.charAt 0
+push argument 0
+pop pointer 0
+push this 0
+push argument 1
+call String.charAt 2
+return
+function BigInt.digitAt 0
+push argument 0
+pop pointer 0
+push this 0
+push argument 1
+call String.charAt 2
+push constant 48
+sub
+return
+function BigInt.isNeg 0
+push argument 0
+pop pointer 0
+push this 1
+return
+function BigInt.rawDigits 0
+push argument 0
+pop pointer 0
+push this 0
+return
+function BigInt.clearDigits 0
+push argument 0
+pop pointer 0
+label WHILE_EXP0
+push this 0
+call String.length 1
+push constant 0
+gt
+not
+if-goto WHILE_END0
+push this 0
+call String.eraseLastChar 1
+pop temp 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function BigInt.setZero 0
+push argument 0
+pop pointer 0
+push pointer 0
+call BigInt.clearDigits 1
+pop temp 0
+push this 0
+push constant 48
+call String.appendChar 2
+pop temp 0
+push constant 0
+pop this 1
+push constant 0
+return
+function BigInt.setInt 5
+push argument 0
+pop pointer 0
+push pointer 0
+call BigInt.clearDigits 1
+pop temp 0
+push argument 1
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 0
+push constant 48
+call String.appendChar 2
+pop temp 0
+push constant 0
+pop this 1
+push constant 0
+return
+label IF_FALSE0
+push argument 1
+push constant 0
+lt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+not
+pop this 1
+push argument 1
+neg
+pop local 0
+goto IF_END1
+label IF_FALSE1
+push constant 0
+pop this 1
+push argument 1
+pop local 0
+label IF_END1
+push constant 8
+call Array.new 1
+pop local 4
+push constant 0
+pop local 2
+label WHILE_EXP0
+push local 0
+push constant 0
+gt
+not
+if-goto WHILE_END0
+push local 0
+push local 0
+push constant 10
+call Math.divide 2
+push constant 10
+call Math.multiply 2
+sub
+pop local 1
+push local 2
+push local 4
+add
+push local 1
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 2
+push constant 1
+add
+pop local 2
+push local 0
+push constant 10
+call Math.divide 2
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push local 2
+push constant 1
+sub
+pop local 3
+label WHILE_EXP1
+push local 3
+push constant 0
+lt
+not
+not
+if-goto WHILE_END1
+push this 0
+push local 3
+push local 4
+add
+pop pointer 1
+push that 0
+push constant 48
+add
+call String.appendChar 2
+pop temp 0
+push local 3
+push constant 1
+sub
+pop local 3
+goto WHILE_EXP1
+label WHILE_END1
+push local 4
+call Array.dispose 1
+pop temp 0
+push constant 0
+return
+function BigInt.isZero 2
+push argument 0
+pop pointer 0
+push this 0
+call String.length 1
+pop local 1
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push local 1
+lt
+not
+if-goto WHILE_END0
+push this 0
+push local 0
+call String.charAt 2
+push constant 48
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+not
+return
+function BigInt.isUnit 0
+push argument 0
+pop pointer 0
+push this 0
+call String.length 1
+push constant 1
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push this 0
+push constant 0
+call String.charAt 2
+push constant 49
+eq
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+return
+label IF_FALSE1
+push this 1
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 0
+return
+label IF_FALSE2
+push constant 0
+not
+return
+function BigInt.normalize 3
+push argument 0
+pop pointer 0
+push this 0
+call String.length 1
+pop local 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+push local 0
+push constant 1
+sub
+lt
+push this 0
+push local 1
+call String.charAt 2
+push constant 48
+eq
+and
+not
+if-goto WHILE_END0
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push local 1
+push constant 0
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+pop local 2
+label WHILE_EXP1
+push local 2
+push local 1
+add
+push local 0
+lt
+not
+if-goto WHILE_END1
+push this 0
+push local 2
+push this 0
+push local 2
+push local 1
+add
+call String.charAt 2
+call String.setCharAt 3
+pop temp 0
+push local 2
+push constant 1
+add
+pop local 2
+goto WHILE_EXP1
+label WHILE_END1
+label WHILE_EXP2
+push this 0
+call String.length 1
+push local 0
+push local 1
+sub
+gt
+not
+if-goto WHILE_END2
+push this 0
+call String.eraseLastChar 1
+pop temp 0
+goto WHILE_EXP2
+label WHILE_END2
+label IF_FALSE0
+push pointer 0
+call BigInt.isZero 1
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+pop this 1
+label IF_FALSE1
+push constant 0
+return
+function BigInt.setNeg 0
+push argument 0
+pop pointer 0
+push argument 1
+pop this 1
+push pointer 0
+call BigInt.isZero 1
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+pop this 1
+label IF_FALSE0
+push constant 0
+return
+function BigInt.negate 0
+push argument 0
+pop pointer 0
+push pointer 0
+call BigInt.isZero 1
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 1
+not
+pop this 1
+label IF_FALSE0
+push constant 0
+return
+function BigInt.compareAbs 5
+push argument 0
+pop pointer 0
+push this 0
+call String.length 1
+pop local 0
+push argument 1
+call BigInt.numDigits 1
+pop local 1
+push local 0
+push local 1
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 1
+neg
+return
+label IF_FALSE0
+push local 0
+push local 1
+gt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 1
+return
+label IF_FALSE1
+push constant 0
+pop local 2
+label WHILE_EXP0
+push local 2
+push local 0
+lt
+not
+if-goto WHILE_END0
+push this 0
+push local 2
+call String.charAt 2
+pop local 3
+push argument 1
+push local 2
+call BigInt.charAt 2
+pop local 4
+push local 3
+push local 4
+lt
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 1
+neg
+return
+label IF_FALSE2
+push local 3
+push local 4
+gt
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push constant 1
+return
+label IF_FALSE3
+push local 2
+push constant 1
+add
+pop local 2
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function BigInt.compare 1
+push argument 0
+pop pointer 0
+push pointer 0
+call BigInt.isZero 1
+push argument 1
+call BigInt.isZero 1
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push this 1
+push argument 1
+call BigInt.isNeg 1
+not
+and
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 1
+neg
+return
+label IF_FALSE1
+push this 1
+not
+push argument 1
+call BigInt.isNeg 1
+and
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 1
+return
+label IF_FALSE2
+push pointer 0
+push argument 1
+call BigInt.compareAbs 2
+pop local 0
+push this 1
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push local 0
+neg
+return
+label IF_FALSE3
+push local 0
+return
+function BigInt.multiplyBy10 0
+push argument 0
+pop pointer 0
+push pointer 0
+call BigInt.isZero 1
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push this 0
+push constant 48
+call String.appendChar 2
+pop temp 0
+push constant 0
+return
+function BigInt.addSmallToAbs 3
+push argument 0
+pop pointer 0
+push argument 1
+pop local 2
+push this 0
+call String.length 1
+push constant 1
+sub
+pop local 0
+label WHILE_EXP0
+push local 0
+push constant 0
+lt
+not
+push local 2
+push constant 0
+gt
+and
+not
+if-goto WHILE_END0
+push this 0
+push local 0
+call String.charAt 2
+push constant 48
+sub
+push local 2
+add
+pop local 1
+push local 1
+push constant 10
+call Math.divide 2
+pop local 2
+push local 1
+push local 2
+push constant 10
+call Math.multiply 2
+sub
+pop local 1
+push this 0
+push local 0
+push local 1
+push constant 48
+add
+call String.setCharAt 3
+pop temp 0
+push local 0
+push constant 1
+sub
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+label WHILE_EXP1
+push local 2
+push constant 0
+gt
+not
+if-goto WHILE_END1
+push local 2
+push local 2
+push constant 10
+call Math.divide 2
+push constant 10
+call Math.multiply 2
+sub
+pop local 1
+push pointer 0
+push local 1
+call BigInt.prependDigit 2
+pop temp 0
+push local 2
+push constant 10
+call Math.divide 2
+pop local 2
+goto WHILE_EXP1
+label WHILE_END1
+push pointer 0
+call BigInt.normalize 1
+pop temp 0
+push constant 0
+return
+function BigInt.prependDigit 2
+push argument 0
+pop pointer 0
+push this 0
+call String.length 1
+pop local 1
+push this 0
+push constant 48
+call String.appendChar 2
+pop temp 0
+push local 1
+pop local 0
+label WHILE_EXP0
+push local 0
+push constant 0
+gt
+not
+if-goto WHILE_END0
+push this 0
+push local 0
+push this 0
+push local 0
+push constant 1
+sub
+call String.charAt 2
+call String.setCharAt 3
+pop temp 0
+push local 0
+push constant 1
+sub
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push this 0
+push constant 0
+push argument 1
+push constant 48
+add
+call String.setCharAt 3
+pop temp 0
+push constant 0
+return
+function BigInt.replaceWith 2
+push argument 0
+pop pointer 0
+push pointer 0
+call BigInt.clearDigits 1
+pop temp 0
+push argument 1
+call BigInt.numDigits 1
+pop local 1
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push local 1
+lt
+not
+if-goto WHILE_END0
+push this 0
+push argument 1
+push local 0
+call BigInt.charAt 2
+call String.appendChar 2
+pop temp 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push argument 1
+call BigInt.isNeg 1
+pop this 1
+push constant 0
+return
+function BigInt.makeAddAbs 11
+push argument 0
+call BigInt.numDigits 1
+pop local 1
+push argument 1
+call BigInt.numDigits 1
+pop local 2
+push local 1
+push local 2
+add
+push constant 2
+add
+call Array.new 1
+pop local 8
+push constant 0
+pop local 9
+push constant 0
+pop local 7
+push constant 0
+pop local 3
+label WHILE_EXP0
+push local 3
+push local 1
+lt
+push local 3
+push local 2
+lt
+or
+push local 7
+push constant 0
+gt
+or
+not
+if-goto WHILE_END0
+push local 3
+push local 1
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 0
+push local 1
+push constant 1
+sub
+push local 3
+sub
+call BigInt.digitAt 2
+pop local 4
+goto IF_END0
+label IF_FALSE0
+push constant 0
+pop local 4
+label IF_END0
+push local 3
+push local 2
+lt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push argument 1
+push local 2
+push constant 1
+sub
+push local 3
+sub
+call BigInt.digitAt 2
+pop local 5
+goto IF_END1
+label IF_FALSE1
+push constant 0
+pop local 5
+label IF_END1
+push local 4
+push local 5
+add
+push local 7
+add
+pop local 6
+push local 6
+push constant 10
+call Math.divide 2
+pop local 7
+push local 6
+push local 7
+push constant 10
+call Math.multiply 2
+sub
+pop local 6
+push local 9
+push local 8
+add
+push local 6
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 9
+push constant 1
+add
+pop local 9
+push local 3
+push constant 1
+add
+pop local 3
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+call BigInt.new 1
+pop local 0
+push local 0
+call BigInt.clearDigits 1
+pop temp 0
+push local 0
+call BigInt.rawDigits 1
+pop local 10
+push local 9
+push constant 1
+sub
+pop local 3
+label WHILE_EXP1
+push local 3
+push constant 0
+lt
+not
+not
+if-goto WHILE_END1
+push local 10
+push local 3
+push local 8
+add
+pop pointer 1
+push that 0
+push constant 48
+add
+call String.appendChar 2
+pop temp 0
+push local 3
+push constant 1
+sub
+pop local 3
+goto WHILE_EXP1
+label WHILE_END1
+push local 0
+call BigInt.numDigits 1
+push constant 0
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 10
+push constant 48
+call String.appendChar 2
+pop temp 0
+label IF_FALSE2
+push local 0
+push argument 2
+call BigInt.setNeg 2
+pop temp 0
+push local 0
+call BigInt.normalize 1
+pop temp 0
+push local 8
+call Array.dispose 1
+pop temp 0
+push local 0
+return
+function BigInt.makeSubAbs 11
+push argument 0
+call BigInt.numDigits 1
+pop local 1
+push argument 1
+call BigInt.numDigits 1
+pop local 2
+push local 1
+push constant 2
+add
+call Array.new 1
+pop local 8
+push constant 0
+pop local 9
+push constant 0
+pop local 7
+push constant 0
+pop local 3
+label WHILE_EXP0
+push local 3
+push local 1
+lt
+not
+if-goto WHILE_END0
+push argument 0
+push local 1
+push constant 1
+sub
+push local 3
+sub
+call BigInt.digitAt 2
+pop local 4
+push local 3
+push local 2
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 1
+push local 2
+push constant 1
+sub
+push local 3
+sub
+call BigInt.digitAt 2
+pop local 5
+goto IF_END0
+label IF_FALSE0
+push constant 0
+pop local 5
+label IF_END0
+push local 4
+push local 5
+sub
+push local 7
+sub
+pop local 6
+push local 6
+push constant 0
+lt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 6
+push constant 10
+add
+pop local 6
+push constant 1
+pop local 7
+goto IF_END1
+label IF_FALSE1
+push constant 0
+pop local 7
+label IF_END1
+push local 9
+push local 8
+add
+push local 6
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 9
+push constant 1
+add
+pop local 9
+push local 3
+push constant 1
+add
+pop local 3
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+call BigInt.new 1
+pop local 0
+push local 0
+call BigInt.clearDigits 1
+pop temp 0
+push local 0
+call BigInt.rawDigits 1
+pop local 10
+push local 9
+push constant 1
+sub
+pop local 3
+label WHILE_EXP1
+push local 3
+push constant 0
+lt
+not
+not
+if-goto WHILE_END1
+push local 10
+push local 3
+push local 8
+add
+pop pointer 1
+push that 0
+push constant 48
+add
+call String.appendChar 2
+pop temp 0
+push local 3
+push constant 1
+sub
+pop local 3
+goto WHILE_EXP1
+label WHILE_END1
+push local 0
+call BigInt.numDigits 1
+push constant 0
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 10
+push constant 48
+call String.appendChar 2
+pop temp 0
+label IF_FALSE2
+push local 0
+push argument 2
+call BigInt.setNeg 2
+pop temp 0
+push local 0
+call BigInt.normalize 1
+pop temp 0
+push local 8
+call Array.dispose 1
+pop temp 0
+push local 0
+return
+function BigInt.add 1
+push argument 0
+pop pointer 0
+push this 1
+push argument 1
+call BigInt.isNeg 1
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push pointer 0
+push argument 1
+push this 1
+call BigInt.makeAddAbs 3
+return
+label IF_FALSE0
+push pointer 0
+push argument 1
+call BigInt.compareAbs 2
+pop local 0
+push local 0
+push constant 0
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+call BigInt.new 1
+return
+label IF_FALSE1
+push local 0
+push constant 0
+gt
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push pointer 0
+push argument 1
+push this 1
+call BigInt.makeSubAbs 3
+return
+label IF_FALSE2
+push argument 1
+push pointer 0
+push argument 1
+call BigInt.isNeg 1
+call BigInt.makeSubAbs 3
+return
+function BigInt.sub 1
+push argument 0
+pop pointer 0
+push this 1
+push argument 1
+call BigInt.isNeg 1
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push pointer 0
+push argument 1
+push this 1
+call BigInt.makeAddAbs 3
+return
+label IF_FALSE0
+push pointer 0
+push argument 1
+call BigInt.compareAbs 2
+pop local 0
+push local 0
+push constant 0
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+call BigInt.new 1
+return
+label IF_FALSE1
+push local 0
+push constant 0
+gt
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push pointer 0
+push argument 1
+push this 1
+call BigInt.makeSubAbs 3
+return
+label IF_FALSE2
+push argument 1
+push pointer 0
+push this 1
+not
+call BigInt.makeSubAbs 3
+return
+function BigInt.mul 12
+push argument 0
+pop pointer 0
+push this 0
+call String.length 1
+pop local 1
+push argument 1
+call BigInt.numDigits 1
+pop local 2
+push local 1
+push local 2
+add
+push constant 2
+add
+call Array.new 1
+pop local 10
+push constant 0
+pop local 3
+label WHILE_EXP0
+push local 3
+push local 1
+push local 2
+add
+push constant 2
+add
+lt
+not
+if-goto WHILE_END0
+push local 3
+push local 10
+add
+push constant 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 3
+push constant 1
+add
+pop local 3
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+pop local 3
+label WHILE_EXP1
+push local 3
+push local 1
+lt
+not
+if-goto WHILE_END1
+push this 0
+push local 1
+push constant 1
+sub
+push local 3
+sub
+call String.charAt 2
+push constant 48
+sub
+pop local 5
+push constant 0
+pop local 8
+push constant 0
+pop local 4
+label WHILE_EXP2
+push local 4
+push local 2
+lt
+not
+if-goto WHILE_END2
+push argument 1
+push local 2
+push constant 1
+sub
+push local 4
+sub
+call BigInt.charAt 2
+push constant 48
+sub
+pop local 6
+push local 3
+push local 4
+add
+pop local 9
+push local 9
+push local 10
+add
+pop pointer 1
+push that 0
+push local 5
+push local 6
+call Math.multiply 2
+add
+push local 8
+add
+pop local 7
+push local 7
+push constant 10
+call Math.divide 2
+pop local 8
+push local 9
+push local 10
+add
+push local 7
+push local 8
+push constant 10
+call Math.multiply 2
+sub
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 4
+push constant 1
+add
+pop local 4
+goto WHILE_EXP2
+label WHILE_END2
+push local 3
+push local 2
+add
+pop local 9
+label WHILE_EXP3
+push local 8
+push constant 0
+gt
+not
+if-goto WHILE_END3
+push local 9
+push local 10
+add
+pop pointer 1
+push that 0
+push local 8
+add
+pop local 7
+push local 7
+push constant 10
+call Math.divide 2
+pop local 8
+push local 9
+push local 10
+add
+push local 7
+push local 8
+push constant 10
+call Math.multiply 2
+sub
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 9
+push constant 1
+add
+pop local 9
+goto WHILE_EXP3
+label WHILE_END3
+push local 3
+push constant 1
+add
+pop local 3
+goto WHILE_EXP1
+label WHILE_END1
+push constant 0
+call BigInt.new 1
+pop local 0
+push local 0
+call BigInt.clearDigits 1
+pop temp 0
+push local 0
+call BigInt.rawDigits 1
+pop local 11
+push local 1
+push local 2
+add
+push constant 1
+add
+pop local 3
+label WHILE_EXP4
+push local 3
+push constant 0
+gt
+push local 3
+push constant 1
+sub
+push local 10
+add
+pop pointer 1
+push that 0
+push constant 0
+eq
+and
+not
+if-goto WHILE_END4
+push local 3
+push constant 1
+sub
+pop local 3
+goto WHILE_EXP4
+label WHILE_END4
+push local 3
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 11
+push constant 48
+call String.appendChar 2
+pop temp 0
+goto IF_END0
+label IF_FALSE0
+push local 3
+push constant 1
+sub
+pop local 9
+label WHILE_EXP5
+push local 9
+push constant 0
+lt
+not
+not
+if-goto WHILE_END5
+push local 11
+push local 9
+push local 10
+add
+pop pointer 1
+push that 0
+push constant 48
+add
+call String.appendChar 2
+pop temp 0
+push local 9
+push constant 1
+sub
+pop local 9
+goto WHILE_EXP5
+label WHILE_END5
+label IF_END0
+push local 0
+push this 1
+push argument 1
+call BigInt.isNeg 1
+eq
+not
+call BigInt.setNeg 2
+pop temp 0
+push local 0
+call BigInt.normalize 1
+pop temp 0
+push local 10
+call Array.dispose 1
+pop temp 0
+push local 0
+return
+function BigInt.divModAbs 6
+push argument 1
+call BigInt.isZero 1
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 2
+call BigInt.setZero 1
+pop temp 0
+push argument 3
+call BigInt.setZero 1
+pop temp 0
+push constant 0
+return
+label IF_FALSE0
+push argument 2
+call BigInt.clearDigits 1
+pop temp 0
+push argument 3
+call BigInt.setZero 1
+pop temp 0
+push argument 2
+call BigInt.rawDigits 1
+pop local 5
+push argument 0
+call BigInt.numDigits 1
+pop local 1
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push local 1
+lt
+not
+if-goto WHILE_END0
+push argument 3
+call BigInt.multiplyBy10 1
+pop temp 0
+push argument 3
+push argument 0
+push local 0
+call BigInt.digitAt 2
+call BigInt.addSmallToAbs 2
+pop temp 0
+push constant 0
+pop local 2
+push argument 3
+push argument 1
+call BigInt.compareAbs 2
+pop local 3
+label WHILE_EXP1
+push local 3
+push constant 0
+lt
+not
+not
+if-goto WHILE_END1
+push argument 3
+push argument 1
+push constant 0
+call BigInt.makeSubAbs 3
+pop local 4
+push argument 3
+push local 4
+call BigInt.replaceWith 2
+pop temp 0
+push local 4
+call BigInt.dispose 1
+pop temp 0
+push local 2
+push constant 1
+add
+pop local 2
+push argument 3
+push argument 1
+call BigInt.compareAbs 2
+pop local 3
+goto WHILE_EXP1
+label WHILE_END1
+push local 5
+push local 2
+push constant 48
+add
+call String.appendChar 2
+pop temp 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push argument 2
+call BigInt.normalize 1
+pop temp 0
+push argument 3
+call BigInt.normalize 1
+pop temp 0
+push constant 0
+return
+function BigInt.div 2
+push argument 0
+pop pointer 0
+push constant 0
+call BigInt.new 1
+pop local 0
+push constant 0
+call BigInt.new 1
+pop local 1
+push pointer 0
+push argument 1
+push local 0
+push local 1
+call BigInt.divModAbs 4
+pop temp 0
+push local 0
+push this 1
+push argument 1
+call BigInt.isNeg 1
+eq
+not
+call BigInt.setNeg 2
+pop temp 0
+push local 1
+call BigInt.dispose 1
+pop temp 0
+push local 0
+return
+function BigInt.mod 2
+push argument 0
+pop pointer 0
+push constant 0
+call BigInt.new 1
+pop local 0
+push constant 0
+call BigInt.new 1
+pop local 1
+push pointer 0
+push argument 1
+push local 0
+push local 1
+call BigInt.divModAbs 4
+pop temp 0
+push local 1
+push this 1
+call BigInt.setNeg 2
+pop temp 0
+push local 0
+call BigInt.dispose 1
+pop temp 0
+push local 1
+return
+function BigInt.print 2
+push argument 0
+pop pointer 0
+push this 1
+push pointer 0
+call BigInt.isZero 1
+not
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 45
+call Output.printChar 1
+pop temp 0
+label IF_FALSE0
+push this 0
+call String.length 1
+pop local 1
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push local 1
+lt
+not
+if-goto WHILE_END0
+push this 0
+push local 0
+call String.charAt 2
+call Output.printChar 1
+pop temp 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return

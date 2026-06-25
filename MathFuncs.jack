@@ -1,0 +1,293 @@
+class MathFuncs {
+
+    function Fraction pi() {
+        var BigInt n, d;
+        var int i;
+        let n = BigInt.new(0);
+        do n.addSmallToAbs(3);
+        do n.multiplyBy10(); do n.addSmallToAbs(1);
+        do n.multiplyBy10(); do n.addSmallToAbs(4);
+        do n.multiplyBy10(); do n.addSmallToAbs(1);
+        do n.multiplyBy10(); do n.addSmallToAbs(5);
+        do n.multiplyBy10(); do n.addSmallToAbs(9);
+        do n.multiplyBy10(); do n.addSmallToAbs(2);
+        do n.multiplyBy10(); do n.addSmallToAbs(6);
+        do n.multiplyBy10(); do n.addSmallToAbs(5);
+        do n.multiplyBy10(); do n.addSmallToAbs(3);
+        do n.multiplyBy10(); do n.addSmallToAbs(5);
+        let d = BigInt.new(1);
+        let i = 0;
+        while (i < 10) {
+            do d.multiplyBy10();
+            let i = i + 1;
+        }
+        return Fraction.new(n, d);
+    }
+
+    function Fraction e() {
+        var BigInt n, d;
+        var int i;
+        let n = BigInt.new(0);
+        do n.addSmallToAbs(2);
+        do n.multiplyBy10(); do n.addSmallToAbs(7);
+        do n.multiplyBy10(); do n.addSmallToAbs(1);
+        do n.multiplyBy10(); do n.addSmallToAbs(8);
+        do n.multiplyBy10(); do n.addSmallToAbs(2);
+        do n.multiplyBy10(); do n.addSmallToAbs(8);
+        do n.multiplyBy10(); do n.addSmallToAbs(1);
+        do n.multiplyBy10(); do n.addSmallToAbs(8);
+        do n.multiplyBy10(); do n.addSmallToAbs(2);
+        do n.multiplyBy10(); do n.addSmallToAbs(8);
+        do n.multiplyBy10(); do n.addSmallToAbs(4);
+        let d = BigInt.new(1);
+        let i = 0;
+        while (i < 10) {
+            do d.multiplyBy10();
+            let i = i + 1;
+        }
+        return Fraction.new(n, d);
+    }
+
+    function BigInt isqrt(BigInt z) {
+        var BigInt s, q, sum, two, sNext;
+        var int d, i;
+        var boolean done;
+        if (z.isZero()) {
+            return BigInt.new(0);
+        }
+        let d = (z.numDigits() + 1) / 2;
+        let s = BigInt.new(1);
+        let i = 0;
+        while (i < d) {
+            do s.multiplyBy10();
+            let i = i + 1;
+        }
+        let two = BigInt.new(2);
+        let done = false;
+        while (~done) {
+            let q = z.div(s);    
+            let sum = s.add(q);
+            let sNext = sum.div(two);
+            do q.dispose();
+            do sum.dispose();
+            if (~(sNext.compare(s) < 0)) {
+                let done = true;
+                do sNext.dispose();
+            } else {
+                do s.replaceWith(sNext);
+                do sNext.dispose();
+            }
+        }
+        do two.dispose();
+        return s;
+    }
+
+    function Fraction sqrt(Fraction x) {
+        var BigInt p, q, scale, scaleP, scaled, s, dOut;
+        var Fraction result;
+        var int i;
+        if (x.isNeg()) {
+            return Fraction.newFromInts(0, 1);
+        }
+        let p = x.getNum();
+        let q = x.getDen();
+        let scale = BigInt.new(1);
+        let i = 0;
+        while (i < 20) {
+            do scale.multiplyBy10();
+            let i = i + 1;
+        }
+        let scaleP = p.mul(scale);
+        let scaled = scaleP.div(q);
+        do scaleP.dispose();
+        do scale.dispose();
+        let s = MathFuncs.isqrt(scaled);
+        do scaled.dispose();
+        let dOut = BigInt.new(1);
+        let i = 0;
+        while (i < 10) {
+            do dOut.multiplyBy10();
+            let i = i + 1;
+        }
+        let result = Fraction.new(s, dOut);
+        do result.simplify();
+        return result;
+    }
+
+    function Fraction reduceModTwoPi(Fraction x) {
+        var Fraction r, piVal, negPi, twoPi, newR;
+        var int safety;
+        let r = Fraction.newCopy(x);
+        let piVal = MathFuncs.pi();
+        let twoPi = piVal.add(piVal);
+        let negPi = Fraction.newCopy(piVal);
+        do negPi.negate();
+        let safety = 0;
+        while ((r.compare(piVal) > 0) & (safety < 10000)) {
+            let newR = r.sub(twoPi);
+            do r.dispose();
+            let r = newR;
+            do r.roundToPrecision(14);
+            let safety = safety + 1;
+        }
+        while ((~(r.compare(negPi) > 0)) & (safety < 20000)) {
+            let newR = r.add(twoPi);
+            do r.dispose();
+            let r = newR;
+            do r.roundToPrecision(14);
+            let safety = safety + 1;
+        }
+        do piVal.dispose();
+        do twoPi.dispose();
+        do negPi.dispose();
+        return r;
+    }
+
+    function Fraction sin(Fraction x) {
+        var Fraction xr, term, sum, xSq, prod, factor, newTerm, newSum;
+        var int k, denom;
+        let xr = MathFuncs.reduceModTwoPi(x);
+        let xSq = xr.mul(xr);
+        let term = Fraction.newCopy(xr);
+        let sum = Fraction.newCopy(xr);
+        do xr.dispose();
+        let k = 1;
+        while (k < 25) {
+            let denom = (2 * k) * ((2 * k) + 1);
+            let prod = term.mul(xSq);
+            do prod.negate();
+            let factor = Fraction.newFromInts(1, denom);
+            let newTerm = prod.mul(factor);
+            do prod.dispose();
+            do factor.dispose();
+            do term.dispose();
+            let term = newTerm;
+            do term.roundToPrecision(14);
+            let newSum = sum.add(term);
+            do sum.dispose();
+            let sum = newSum;
+            do sum.roundToPrecision(14);
+            let k = k + 1;
+        }
+        do term.dispose();
+        do xSq.dispose();
+        return sum;
+    }
+
+    function Fraction cos(Fraction x) {
+        var Fraction xr, term, sum, xSq, prod, factor, newTerm, newSum;
+        var int k, denom;
+        let xr = MathFuncs.reduceModTwoPi(x);
+        let xSq = xr.mul(xr);
+        do xr.dispose();
+        let term = Fraction.newFromInts(1, 1);
+        let sum = Fraction.newFromInts(1, 1);
+        let k = 0;
+        while (k < 25) {
+            let denom = ((2 * k) + 1) * ((2 * k) + 2);
+            let prod = term.mul(xSq);
+            do prod.negate();
+            let factor = Fraction.newFromInts(1, denom);
+            let newTerm = prod.mul(factor);
+            do prod.dispose();
+            do factor.dispose();
+            do term.dispose();
+            let term = newTerm;
+            do term.roundToPrecision(14);
+            let newSum = sum.add(term);
+            do sum.dispose();
+            let sum = newSum;
+            do sum.roundToPrecision(14);
+            let k = k + 1;
+        }
+        do term.dispose();
+        do xSq.dispose();
+        return sum;
+    }
+
+    function Fraction abs(Fraction x) {
+        var Fraction r;
+        let r = Fraction.newCopy(x);
+        if (r.isNeg()) {
+            do r.negate();
+        }
+        return r;
+    }
+
+    function int bigIntToInt(BigInt b) {
+        var int n, i, len, sign;
+        var int digit;
+        let len = b.numDigits();
+        if (len > 4) { return 0; }   
+        let sign = 1;
+        if (b.isNeg()) { let sign = -1; }
+        let n = 0;
+        let i = 0;
+        while (i < len) {
+            let digit = b.digitAt(i);
+            let n = (n * 10) + digit;
+            let i = i + 1;
+        }
+        return n * sign;
+    }
+
+    function Fraction powFrac(Fraction base, Fraction exp) {
+        var Fraction result, baseCopy, tmp, one, invBase;
+        var int e, i;
+        var boolean negExp;
+        if (~(exp.isInteger())) {
+            return Fraction.newCopy(base);
+        }
+        let e = MathFuncs.bigIntToInt(exp.getNum());
+        let negExp = e < 0;
+        if (negExp) { let e = -e; }
+        let result = Fraction.newFromInts(1, 1);
+        let baseCopy = Fraction.newCopy(base);
+        let i = 0;
+        while (i < e) {
+            let tmp = result.mul(baseCopy);
+            do result.dispose();
+            let result = tmp;
+            do result.roundToPrecision(14);
+            let i = i + 1;
+        }
+        do baseCopy.dispose();
+        if (negExp) {
+            let one = Fraction.newFromInts(1, 1);
+            let invBase = one.div(result);
+            do one.dispose();
+            do result.dispose();
+            let result = invBase;
+        }
+        return result;
+    }
+
+    function int identCode(String s) {
+        var int len, c0, c1, c2, c3;
+        let len = s.length();
+        if (len = 0) { return 0; }
+        let c0 = s.charAt(0);
+        if (len = 1) {
+            if (c0 = 101) { return 6; }  
+            return 0;
+        }
+        let c1 = s.charAt(1);
+        if (len = 2) {
+            if ((c0 = 112) & (c1 = 105)) { return 5; }  
+            return 0;
+        }
+        let c2 = s.charAt(2);
+        if (len = 3) {
+            if ((c0 = 115) & (c1 = 105) & (c2 = 110)) { return 1; }
+            if ((c0 = 99) & (c1 = 111) & (c2 = 115)) { return 2; }
+            if ((c0 = 97) & (c1 = 98) & (c2 = 115)) { return 4; }
+            return 0;
+        }
+        if (len = 4) {
+            let c3 = s.charAt(3);
+            if ((c0 = 115) & (c1 = 113) & (c2 = 114) & (c3 = 116)) { return 3; }
+            return 0;
+        }
+        return 0;
+    }
+}
